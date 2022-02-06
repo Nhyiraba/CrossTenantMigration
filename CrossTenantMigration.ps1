@@ -265,3 +265,22 @@ function ExtractExchGUIandX500 {
     }
 
 }
+
+function ExchGuidAndLegacyExchDNTranferSourceToTarget {
+    param ()
+
+    <#
+        Its recommneded to use the same Display Name from the source tenant aids the transfer of object properties
+
+        Another way is to manually map the object from the destination to source properties
+        
+        To get source properties use
+            ExtractExchGUIandX500, 
+            export the results as csv
+            Open the csv file
+            Create new column and the mail user emails address from the target tenant.
+    #>
+
+    
+    
+}
