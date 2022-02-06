@@ -272,6 +272,18 @@ function ExchGuidAndLegacyExchDNTranferSourceToTarget {
     <#
         Its recommneded to use the same Display Name from the source tenant aids the transfer of object properties
 
+        Automated process
+        ===========================
+            Get source properties using 
+                $userpros = ExtractExchGUIandX500 function
+            Connect to target tenant
+                Connect-exchangeOnline #target tenant admin
+            Use the properties from $userpros to stamp it on the target mail users
+                $userpros | ForEach-Object { Set-MailUser -identity $_.DisplayName -ExchangeGUID [GUID]$_.ExchangeGuid -EmailAddresses@{add="x500"$_.LegacyExchangDN}}
+            Use the display name from the retrieved data
+
+        Manual process
+        ==========================
         Another way is to manually map the object from the destination to source properties
         
         To get source properties use
@@ -282,5 +294,7 @@ function ExchGuidAndLegacyExchDNTranferSourceToTarget {
     #>
 
     
+
+
     
 }
