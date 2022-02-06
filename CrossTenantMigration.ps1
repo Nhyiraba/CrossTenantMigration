@@ -125,7 +125,7 @@ function CreateOneTragetMailUser {
     Write-Host "`nEnter Detail Seperated by comma (,) - DisplayName, MailUserUPN, Passowrd`n"
     Write-host "Example : Daniel Alex, dlex@hoperoom.com, Passw0rd!@# `n" -ForegroundColor Yellow
     $MailUserDetail = Read-Host "Entert the mail user detail "
-    $MailUserDetail = $MailUserDetail.Split(",").Trim() #split and remove all white spaces from the imput
+    $MailUserDetail = $MailUserDetail.Split(",").Trim().Trim("'").Trim('"') #split and remove all white spaces from the imput
 
     Write-Host $MailUserDetail
     if ($MailUserDetail[1].ToLower().Contains("@") -eq $true) {
@@ -224,11 +224,10 @@ function ExtractExchGUIandX500 {
         
         switch ($DataSource) {
             "1" { 
-                
                 $BulkOrOne = Read-Host "Enter the Mailbox email address"
-                $BulkOrOneMailbox = $BulkOrOne.split(",").Trim() #split and remove all white spaces from the imput
+                $BulkOrOneMailbox = $BulkOrOne.split(",").Trim().Trim("'").Trim('"') #split and remove all white spaces from the imput
 
-                if ($BulkOrOneMailbox.Length -le 0) {
+                if ($BulkOrOneMailbox.Length -ge 1) {
                     #get single mailbox information
                     $MailboxInfoResults = RetrievMailboxInfo -UserMailbox $BulkOrOneMailbox
                     return $MailboxInfoResults 
@@ -247,8 +246,9 @@ function ExtractExchGUIandX500 {
                 return $MailboxInfoResults
             
             }
+            Default { Write-Host "Invalid selected choice" }
         }
-        Default { Write-Host "Invalid selected choice" }
+        
     }
     else {
     
