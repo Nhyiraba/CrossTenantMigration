@@ -112,6 +112,16 @@ function CrossT2TMigration {
 }
 
 
+
+<################# 
+
+    List of all implemented funtions
+    Each major function can be run impendently for independent operation on the source and target tenant.
+
+    
+
+#>
+
 #Creating mail user on source tenant
 function CreateOneTragetMailUser {
    
@@ -293,7 +303,7 @@ function ExchGuidAndLegacyExchDNTranferSourceToTarget {
             Create new column and the mail user emails address from the target tenant.
     #>
 
-    
+
 
 
     
