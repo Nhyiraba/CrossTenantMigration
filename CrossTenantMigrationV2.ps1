@@ -75,6 +75,57 @@ function Get-CSVFile {
 }
 
 
+function CrossT2TMigration {
+  
+    <#
+    .Synopsis
+        This script will enable user to automate the of the processess in volved in tenant to tenant mailbox migration.
+
+    .Description
+        add later
+
+    .Example
+        later   
+#>
+
+    [CmdletBinding(DefaultParameterSetName = "Default")]
+    param (
+        # MailUser principal name
+        [Parameter(
+            Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName,
+            ParameterSetName = "MailUserPrincipalName"
+        )]
+        [array]$CreateTargetMailUser,
+
+        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        #[ValidateSet("1", "2","3")] # bulk mailuser creation or single
+        [string]$ChoseSelection
+
+    )
+
+
+    # Choice seelect tion
+    Write-Host $ActionSelection
+
+    $ChoseSelection = Read-Host "CHOICE SELECTION  "
+    
+    switch ($ChoseSelection) {
+
+        "1" {
+            CreateOneTragetMailUser 
+        }
+        "2" { 
+            Write-Host 
+            
+
+        }
+    
+        Default { "sdflshlfks" }
+    }
+}
+
+
+
 <################# 
 
     List of all implemented funtions
@@ -451,5 +502,4 @@ function TranferSourceToTarget {
 
 }
 
-
-    
+# This code is ready for tenant to tenant object preparation for migration
