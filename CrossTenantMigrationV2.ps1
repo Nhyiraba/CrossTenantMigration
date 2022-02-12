@@ -168,6 +168,24 @@ function New-TragetMailUser {
 
 function New-BulkTargetMailUser {
 
+    <#
+    .Synopsis
+    Create bulk users on the target tenant
+    .DESCRIPTION
+    This function enable admin to create needed mail users on the target tenant for migration.
+
+    .EXAMPLE
+    New-BulkTargetMailUser -BulkUserData <Array of Mailboxes in a table format>
+
+    $myMailBoxes = Import-csv "file path" # can also use get-content
+    New-BulkTargetMailUser -BulkUserData
+
+    .FUNCTIONALITY
+    Create MailUser in bulk for the retrived content supplied by the csv file. The colomnn must contain
+    DiaplayName, EmailAddress, password. Object creation will fail if the mention colums are not available. 
+
+    #>
+
     
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param (
@@ -179,8 +197,10 @@ function New-BulkTargetMailUser {
         [string]$BulkUserData
     )
 
+    # get CSV file
     if (-not($BulkUserData)) { $BulkUserData = Get-CSVFile }
 
+    # Read CSV file
     $LoadBulkUserData = Import-Csv -Path $BulkUserData
     
     #creating users
