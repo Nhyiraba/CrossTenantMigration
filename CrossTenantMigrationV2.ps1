@@ -50,7 +50,19 @@ Select the corresponding option for data source
 
 "@
 
+$ObjectCreationOnTarget = @"
 
+================== Creating MailUsers on Tranger Tenant =======================
+
+Please, any of the domain in the Target Tenant to enable create of MailUser for
+migration of user and stamption Echange GUID and X500 address
+
+===============================================================================
+
+"@
+
+
+#  This function invokes file picker dialog box for the users to select csv file
 function Get-CSVFile {
     #get csv file
     [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
@@ -111,6 +123,16 @@ function CrossT2TMigration {
     }
 }
 
+
+
+<################# 
+
+    List of all implemented funtions
+    Each major function can be run impendently for independent operation on the source and target tenant.
+
+    
+
+#>
 
 #Creating mail user on source tenant
 function CreateOneTragetMailUser {
@@ -186,7 +208,12 @@ function ExtractExchGUIandX500 {
         # User mailbox email address or full display name
         [Parameter(Mandatory = $false)]
         [array]
-        $BulkOrOneMailbox
+        $BulkOrOneMailbox,
+
+        #export results as csv
+        [Parameter(Mandatory = $false)]
+        [bool]
+        $ExportResultAs = $false
     )
 
     #for retrieving the mailbox information
@@ -266,9 +293,43 @@ function ExtractExchGUIandX500 {
 
 }
 
-function ExchGuidAndLegacyExchDNTranferSourceToTarget {
-    param ()
+function ExchGuidx500TranferSourceToTarget {
 
+    [CmdletBinding(DefaultParameterSetName = "Default")]
+    param (
+        # SourceTenant, This paramter is mandatory and used in command prefix for destinguish destination and source
+        [Parameter(Mandatory, ParameterSetName = "Name") 
+        ]
+        [string]
+        $Name,
+
+        # Target or Destination Tenant. This paramter is mandatory and used in command prefix for destinguish destination and source
+        [Parameter(Mandatory, ParameterSetName = "TargetTenantName")]
+        [String]
+        $TargetTenantName,
+
+        # sepecify the migration security group from source tenant, this is also called the migration scope
+        [Parameter(Mandatory, ParameterSetName = "SourceTenantMigratSecurityGroup")]
+        [String]
+        $SourceTenantMigratSecurityGroup,
+
+        # this is not mandatory, sepecify the migration security group from traget tenant tenant, this is also called the migration scope
+        [Parameter(Mandatory = $false, ParameterSetName = "TargetTenantMigratSecurityGroup")]
+        [String]
+        $TargetTenantMigratSecurityGroup,
+
+        #this is not mandatory and can be specified for the all mailusers for migration not yet create on target tenant
+        [Parameter(Mandatory, ParameterSetName = "UserAlreadyExist")]
+        [bool]
+        $UserAlreadyExist = $true,
+
+        #specify domain for create new mail user on target tenant
+        [Parameter(Mandatory = $false, ParameterSetName = "UserAlreadyExist")]
+        [string]
+        $TargetDomainForNewMailUsers
+    )
+
+    
     <#
         Its recommneded to use the same Display Name from the source tenant aids the transfer of object properties
 
@@ -293,7 +354,101 @@ function ExchGuidAndLegacyExchDNTranferSourceToTarget {
             Create new column and the mail user emails address from the target tenant.
     #>
 
+    # Concatenation of commandes: 
+    # $cmd = "get-"+$gd+"Mailbox  "+$UPN
+    # Implementing the Invoke-Expression command to convert the string to a command.
+    # Invoke-Expression $cmd
+
+    #Connect to exchange Online for the source tenant
+    Connect-ExchangeOnline -Prefix $SourceTenantName
+
+    #Connect to exchange Online for the target tenant
+    Connect-ExchangeOnline -Prefix $TargetTenantName
+
+    #Getting all user from migration mail-enabled security group
+    $GroupMember = Invoke-Expression ("get-" + $SourceTenantName + "DistributionGroupMember  " + $SourceTenantMigratSecurityGroup)
+
+    #for retrieving the mailbox information for all mailboxes in the the Migration security group
+    $MailboxInfoAll = @()
+    $GroupMember | ForEach-Object {
+            
+        $EachUser = Invoke-Expression("get-" + $SourceTenantName + "MailBox -Identity " + $_ ) | Select-Object DisplayName, PrimarySmtpAddress, ExchangeGuid, LegacyExchangeDN
+
+        $MailBoxInfo = [PSCustomObject]@{
+            DisplayName      = $EachUser.DisplayName
+            ExchangeGuid     = $EachUser.ExchangeGuid
+            EmailAddress     = $EachUser.PrimarySmtpAddress
+            LegacyExchangeDN = $EachUser.LegacyExchangeDN
+        }
+
+        $MailboxInfoAll += $MailBoxInfo
+    }
+
+    #get all the equivalent mail users from destination or target tenant.
     
+    # Propertity check
+    If ($UserAlreadyExist -eq $false) {
+        Write-Host $ObjectCreationOnTarget
+        $ChoseDomain = Read-Host "ENTER DOMAIN NAME FOR OBJECT CREATION  "
+
+        if ($ChoseDomain -notin (Invoke-Expression("get-" + $TargetTenantName + "AcceptedDomain")).DomainName ) {
+            $allDomains = (Invoke-Expression("get-" + $TargetTenantName + "AcceptedDomain")) | Select-Object DomainName, Default
+            Write-Host "`nThe domain provided in not included in your accepted domains. `nYour accepted domains are : `n`nDOMAINS`n===================="
+            Write-Output $allDomains
+            
+        }
+        else {
+            #selected domain
+            $defaultDomain = ($allDomains | where-object { $_.Default -eq "True" }).DomainName
+            Write-host "`n`nSetting mail user creation domain to the tenant default domain : " + $defaultDomain
+
+
+            Write-Host " ========================== Creating Mail Users on Target Tanant ========================"
+
+            $MailUserPwd = Read-Host "ENTER DEFAULT PASSWORD FOR NEW MAIL USER CREATION ON TARGET " 
+            
+            Write-host "`n`n"
+
+            $MailboxInfoAll | ForEach-Object{
+                $MailUserAddress = ($MailUserDetail.PrimarySmtpAddress.split("@")[0]+"@"+$defaultDomain).ToLower() #split and remove all white spaces from the imput
+
+                #create  mail user with entered data
+                Invoke-Expression("New-"+$TargetTenantName+"MailUser -Name "+$_.DisplayName+" -MicrosoftOnlineServicesID "+$_.MailUserAddress+" -DisplayName "+$_.DisplayName+" -Password (ConvertTo-SecureString -String "+$MailUserPwd+" -AsPlainText -Force)")
+            }
+        }
+    }
+
+    # Get all the scope mail user from the target and stamp them with Exchange GUID and Lagacy DN from source.
+    
+
+
+
+
+}
+
+
+
+    
+
+
+
+#pass the list of user the ExtractExchGUIandX500 fountion
+
+
+
+    
+    
+    
+
+
+    
+    
+
+
+
+
+
+
 
 
     
