@@ -85,8 +85,10 @@ tenant
 
     > ![](.//media/image11.png)
 
+<br>
+
 ## $\color{#f09c15}{Important }$ Note 
-> ![](.//media/image12.png)
+  > ![](.//media/image12.png)
 
 <br>
 
@@ -186,85 +188,20 @@ tenant
 
 ## **Target And Source Object Preparation**
 
-Example **target** (Destination) MailUser object:
+- Example **target** (Destination) MailUser object: 
+<br>
 
-  -------------------------------------------------------------------------------------------------------------------
-  Attribute              Value                                                                     Notes on
-                                                                                                   properties
-  ---------------------- ------------------------------------------------------------------------- ------------------
-  Alias                  LaraN                                                                     
+    >  ![](.//media/image17.png)
 
-  RecipientType          MailUser                                                                  
+- Example **source** (origin) Mailbox object:
+<br>
 
-  RecipientTypeDetails   MailUser                                                                  
+   >  ![](.//media/image18.png)
 
-  UserPrincipalName      LaraN@northwintraders.onmicrosoft.com                                     
+## **Further Information on Prerequisites for target user objects**
+<br>
 
-  PrimarySmtpAddress     Lara.Newton@northwind.com                                                 
-
-  ExternalEmailAddress   SMTP:LaraN@contoso.onmicrosoft.com                                        **UPN** of the
-                                                                                                   source object
-
-  ExchangeGuid           **1ec059c7-8396-4d0b-af4e-d6bd4c12a8d8**                                  **ExchangeGuid**
-                                                                                                   from the source
-                                                                                                   object
-
-  LegacyExchangeDN       /o=First Organization/ou=Exchange Administrative Group                    
-
-                         (FYDIBOHF23SPDLT)/cn=Recipients/cn=74e5385fce4b46d19006876949855035Lara   
-
-  EmailAddresses         x500:/o=First Organization/ou=Exchange Administrative Group               The LagacyDN from
-                         (FYDIBOHF23SPDLT)/cn=Recipients/cn=d11ec1a2cacd4f81858c8190               source object add
-                                                                                                   as proxy x500
-                                                                                                   address
-
-                         7273f1f9-Lara                                                             
-
-                         smtp:LaraN@northwindtraders.onmicrosoft.com                               
-
-                         SMTP:Lara.Newton@northwind.com                                            
-  -------------------------------------------------------------------------------------------------------------------
-
-Example **source** (origin) Mailbox object:
-
-+-------------+--------------------------------------+----------------+
-| Attribute   | Value                                | Properties to  |
-|             |                                      | Transfer       |
-+=============+======================================+================+
-| Alias       | LaraN                                |                |
-+-------------+--------------------------------------+----------------+
-| Re          | UserMailbox                          |                |
-| cipientType |                                      |                |
-+-------------+--------------------------------------+----------------+
-| Recipient   | UserMailbox                          |                |
-| TypeDetails |                                      |                |
-+-------------+--------------------------------------+----------------+
-| UserPr      | LaraN@contoso.onmicrosoft.com        | Transfer to    |
-| incipalName |                                      | add as         |
-|             |                                      | external email |
-|             |                                      | address to     |
-|             |                                      | target mail    |
-|             |                                      | user           |
-+-------------+--------------------------------------+----------------+
-| Primary     | Lara.Newton@contoso.com              |                |
-| SmtpAddress |                                      |                |
-+-------------+--------------------------------------+----------------+
-| E           | 1ec059c7-8396-4d0b-af4e-d6bd4c12a8d8 |                |
-| xchangeGuid |                                      |                |
-+-------------+--------------------------------------+----------------+
-| Legac       | /o=First Organization/ou=Exchange    | Transfer to    |
-| yExchangeDN | Administrative Group                 | target mail    |
-|             |                                      | user as x500   |
-|             | (FYDIBOHF23SPDLT)/cn=Recipients/cn=  | proxyaddress   |
-|             | d11ec1a2cacd4f81858c81907273f1f9Lara |                |
-+-------------+--------------------------------------+----------------+
-| Ema         | smtp:LaraN@contoso.onmicrosoft.com   |                |
-| ilAddresses |                                      |                |
-+-------------+--------------------------------------+----------------+
-|             | SMTP:Lara.Newton@contoso.com         |                |
-+-------------+--------------------------------------+----------------+
-
-![](.//media/image14.png)
+   >  ![](.//media/image14.png)
 
 <br>
 
@@ -297,6 +234,8 @@ Example **source** (origin) Mailbox object:
 > The following happens if the LagacyExchangeDN to from the source mailbox has not been added as x500 proxy address on the target mail user.
 
  > ![](.//media/image16.png)
+
+
 
 ## **References**
 
